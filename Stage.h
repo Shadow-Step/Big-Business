@@ -52,8 +52,17 @@ public:
 class STGameLoop : public Stage
 {
 private:
-	vector<Card*>card;
-	vector<Player*>player;
+	vector<Card*>	card;
+	vector<Player*>	player;
+	vector<Button*>	button;
+	
+	Player * plr = nullptr;
+
+	bool animation		= false;
+	int currplayer		= 0;
+	int cubes			= 0;
+	float animtime		= 0;
+	float animtimeMax	= 0.1;
 public:
 	STGameLoop();
 	~STGameLoop();
@@ -62,8 +71,14 @@ public:
 	void Draw(RenderTarget &target)override;
 	void CheckButton(Button&button)override;
 	void CatchEvent(const Event &event)override;
+	void EndTurn();
+	void CheckCard();
+	void Animation(const float &dtime);
+	//Getters
+	Button& FindButton(form::id id);
 	
 	//Static
+
 	static int playersN;
 	static int startMoney;
 	static bool gameStarted;

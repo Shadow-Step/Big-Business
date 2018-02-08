@@ -31,7 +31,10 @@ namespace str
 		str_Back,
 		str_Start,
 		str_Yes,
-		str_No
+		str_No,
+		str_EndTurn,
+		str_ThrowCubes,
+		str_Buy
 	};
 }
 class EngineData

@@ -14,6 +14,9 @@ namespace form
 		launch,
 		yes,
 		no,
+		end_turn,
+		throw_cubes,
+		buy_card,
 
 		ng_players_01,
 		ng_players_02,
@@ -73,4 +76,17 @@ class Label : public Forms
 {
 public:
 
+};
+class ToolTip : Forms
+{
+private:
+	RectangleShape tooltip;
+	Text text;
+public:
+	ToolTip(string str);
+	void Update(const float &time);
+	inline void Draw(RenderTarget & target) { target.draw(tooltip); target.draw(text); }
+
+	//Setters
+	inline void SetString(string str) { this->text.setString(str); }
 };

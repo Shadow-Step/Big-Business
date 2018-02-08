@@ -31,6 +31,9 @@ void EngineData::InitStrings()
 	EngineData::strings.push_back("Start");
 	EngineData::strings.push_back("Yes");
 	EngineData::strings.push_back("No");
+	EngineData::strings.push_back("End Turn");
+	EngineData::strings.push_back("Throw Cubes");
+	EngineData::strings.push_back("Buy");
 	//End temp!!!
 }
 void Cursor::InitCursor()

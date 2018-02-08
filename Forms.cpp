@@ -63,3 +63,20 @@ void Button::ResetTextPosition()
 	this->buttontext.setPosition(this->button.getPosition().x + (this->button.getGlobalBounds().width - this->buttontext.getGlobalBounds().width) / 2,
 		this->button.getPosition().y + (this->button.getGlobalBounds().height - this->buttontext.getGlobalBounds().height) / 2);
 }
+
+ToolTip::ToolTip(string str)
+{
+	tooltip.setSize(Vector2f(160, 240));
+	tooltip.setPosition(600, 150);
+	tooltip.setFillColor(Color::White);
+
+	text.setFont(EngineData::font);
+	text.setCharacterSize(18);
+	text.setString(str);
+	text.setFillColor(Color(136, 136, 136));
+	text.setPosition(625, 300);
+}
+
+void ToolTip::Update(const float & time)
+{
+}
