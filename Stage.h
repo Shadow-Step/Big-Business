@@ -67,6 +67,7 @@ public:
 	static int playersN;
 	static int startMoney;
 	static bool gameStarted;
+
 };
 
 class STOptions : public Stage

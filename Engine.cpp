@@ -12,8 +12,11 @@ Engine::Engine(RenderWindow *window)
 	EngineData::InitFont();
 	EngineData::InitStrings();
 
-	mainmenu = new STMainmenu();
-	this->currentStage = mainmenu;
+	//mainmenu = new STMainmenu();
+	//this->currentStage = mainmenu;
+
+	gameloop = new STGameLoop();
+	this->currentStage = gameloop;
 }
 Engine::~Engine()
 {

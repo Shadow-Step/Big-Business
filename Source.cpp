@@ -6,7 +6,7 @@
 int main()
 {
 
-	sf::RenderWindow window(VideoMode(800, 600), "Big Business");
+	sf::RenderWindow window(VideoMode::getDesktopMode(), "Big Business");
 	EngineData::winsize = (Vector2f)window.getSize();
 	Engine engine(&window);
 	

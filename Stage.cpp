@@ -49,14 +49,14 @@ STMainmenu::STMainmenu()
 	warningbutt.push_back(new Button(
 		EngineData::strings[str::str_Yes],
 		tempsize,
-		Vector2f(315,370),
+		Vector2f(595,370),
 		form::id::yes));
 
 	
 	warningbutt.push_back(new Button(
 		EngineData::strings[str::str_No],
 		tempsize,
-		Vector2f(315+75+20, 370),
+		Vector2f(595+75+20, 370),
 		form::id::no));
 	//END TEMP!!!
 }
@@ -174,9 +174,25 @@ STGameLoop::STGameLoop()
 	{
 		player.push_back(new Player(startMoney));
 	}
-	//push card;
+	
+	Vector2f pos(340, 10);
+	Vector2f size(83, 120);
+	for (size_t i = 0; i < 8; i++)
+	{
+		card.push_back(new Card(Vector2f(pos.x+(size.x*i), pos.y)));
+		card.push_back(new Card(Vector2f(pos.x+(size.x*i), pos.y+620)));
+	}
+	pos = Vector2f(25, 12+size.y);
+	for (size_t i = 0; i < 6; i++)
+	{
+		card.push_back(new Card(Vector2f(pos.x+272+40,pos.y+(size.x*i))));
+		card[card.size() - 1]->SetRotation(90);
+		card.push_back(new Card(Vector2f(pos.x+1059+40, pos.y + (size.x*i))));
+		card[card.size() - 1]->SetRotation(90);
+	}
 
 	gameStarted = true;
+
 }
 STGameLoop::~STGameLoop()
 {
@@ -192,9 +208,25 @@ STGameLoop::~STGameLoop()
 }
 void STGameLoop::Update(const float & dtime)
 {
+	for (size_t i = 0; i < player.size(); i++)
+	{
+		player[i]->Update(dtime);
+	}
+	for (size_t i = 0; i < card.size(); i++)
+	{
+		card[i]->Update(dtime);
+	}
 }
 void STGameLoop::Draw(RenderTarget & target)
 {
+	for (size_t i = 0; i < card.size(); i++)
+	{
+		card[i]->Draw(target);
+	}
+	for (size_t i = 0; i < player.size(); i++)
+	{
+		player[i]->Draw(target);
+	}
 }
 void STGameLoop::CheckButton(Button & button)
 {
@@ -221,18 +253,18 @@ STNewGame::STNewGame()
 	button.push_back(new Button(
 		EngineData::strings[str::str_Back],
 		tempsize,
-		Vector2f(0, EngineData::winsize.y-tempsize.y), 
+		Vector2f(20, EngineData::winsize.y-tempsize.y-20), 
 		form::id::back));
 
 	button.push_back(new Button(
 		EngineData::strings[str::str_Start],
 		tempsize,
-		Vector2f(EngineData::winsize.x-tempsize.x, 
-			EngineData::winsize.y - tempsize.y), 
+		Vector2f(EngineData::winsize.x-tempsize.x-20, 
+			EngineData::winsize.y - tempsize.y-20), 
 		form::id::launch));
 	///////////////
 	tempsize = Vector2f(100, 50);
-	Vector2f pos(190, 100);
+	Vector2f pos(500, 100);
 	x = 0;
 
 	button.push_back(new Button(
