@@ -35,15 +35,25 @@ private:
 
 	int price;
 	int profit;
-	
-	
+
 public:
 	Card();
+	Card(Vector2f position);
 	virtual ~Card();
 
 	//Functions
+	void Update(const float &dtime);
+	void Draw(RenderTarget &target);
 	static void InitTextures();
 
+	//Setters
+	inline void SetPosition(Vector2f position) { this->card.setPosition(position); }
+	inline void SetPosition(float x, float y) { this->card.setPosition(x, y); }
+	inline void SetRotation(float angle) { this->card.setRotation(angle); }
+	//Getters
+	inline const Vector2f GetSize()const { return this->card.getSize(); }
+	//Static
 	static vector<Texture>texture;
+	static int ID;
 };
 
