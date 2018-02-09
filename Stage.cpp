@@ -3,11 +3,20 @@
 int STGameLoop::playersN = 1;
 int STGameLoop::startMoney = 0;
 bool STGameLoop::gameStarted = false;
+
 Stage::Stage()
 {
 }
 Stage::~Stage()
 {
+}
+Button & Stage::FindButton(form::id id)
+{
+	for (size_t i = 0; i < button.size(); i++)
+	{
+		if (button[i]->GetID() == id)
+			return *button[i];
+	}
 }
 /////////////////////////////////////////
 STMainmenu::STMainmenu()
@@ -65,6 +74,10 @@ STMainmenu::~STMainmenu()
 	for (size_t i = 0; i < button.size(); i++)
 	{
 		delete button[i];
+	}
+	for (size_t i = 0; i < warningbutt.size(); i++)
+	{
+		delete warningbutt[i];
 	}
 }
 void STMainmenu::Update(const float & dtime)
@@ -157,14 +170,7 @@ void STMainmenu::CatchEvent(const Event & event)
 {
 	
 }
-Button& STMainmenu::FindButton(form::id id)
-{
-	for (size_t i = 0; i < button.size(); i++)
-	{
-		if (button[i]->GetID() == id)
-			return *button[i];
-	}
-}
+
 //////////////////////////////////////////////////////
 STGameLoop::STGameLoop()
 {
@@ -270,11 +276,24 @@ void STGameLoop::Update(const float & dtime)
 		for (size_t i = 0; i < card.size(); i++)
 		{
 			card[i]->Update(dtime);
+			SelectCard(*card[i]);
 		}
 	}
 	else
 	{
 		Animation(dtime);
+	}
+
+	//Update Dynamic Text
+	for (size_t i = 0; i < DynamicText::dyntext.size(); i++)
+	{
+		if (DynamicText::dyntext[i]->IsAlive())
+			DynamicText::dyntext[i]->Update(dtime);
+		else
+		{
+			delete DynamicText::dyntext[i];
+			DynamicText::dyntext.erase(DynamicText::dyntext.begin() + i);
+		}
 	}
 }
 void STGameLoop::Draw(RenderTarget & target)
@@ -290,6 +309,10 @@ void STGameLoop::Draw(RenderTarget & target)
 	for (size_t i = 0; i < player.size(); i++)
 	{
 		player[i]->Draw(target);
+	}
+	for (size_t i = 0; i < DynamicText::dyntext.size(); i++)
+	{
+		DynamicText::dyntext[i]->Draw(target);
 	}
 }
 void STGameLoop::CheckButton(Button & button)
@@ -325,10 +348,15 @@ void STGameLoop::CheckButton(Button & button)
 			animation = true;
 			break;
 		case form::id::buy_card:
-			if (player[currplayer]->money >= card[player[currplayer]->position]->price)
+			if (plr->money >= crd->price)
 			{
-				card[plr->position]->SetOwner(plr->GetID());
-				plr->money -= card[plr->position]->price;
+				plr->property[crd->type]++;
+				plr->prop.push_back(crd);
+				plr->SetMoney(-crd->price);
+				if (plr->property[crd->type] == 3)
+					SetMonopoly(crd->type, true);
+				crd->SetOwner(plr->GetID());
+
 				//card[player[currplayer]->GetPosition()]->SetOwner(player[currplayer]->GetID());
 				delete this->button[this->button.size() - 1];
 				this->button.pop_back();
@@ -343,6 +371,7 @@ void STGameLoop::CheckButton(Button & button)
 }
 void STGameLoop::CatchEvent(const Event & event)
 {
+	
 	if (EngineData::clicktime > EngineData::clicktimeMax)
 	{
 		if (Keyboard::isKeyPressed(Keyboard::Escape))
@@ -353,12 +382,17 @@ void STGameLoop::CatchEvent(const Event & event)
 		if (Keyboard::isKeyPressed(Keyboard::Space))
 		{
 			EngineData::clicktime = 0;
-			player[currplayer]->SetPosition(card[rand() % 30]->GetPosition());
+			plr->SetMoney(plr->prop[plr->prop.size()-1]->price / 2);
+			plr->prop[plr->prop.size() - 1]->SetOwner(card::Owner::neutral);
+			plr->prop.pop_back();
 		}
 	}
 }
 void STGameLoop::EndTurn()
 {
+	crd->tooldraw = false;
+	crd = nullptr;
+
 	int alive = 0;
 	for (size_t i = 0; i < player.size(); i++)
 	{
@@ -372,6 +406,11 @@ void STGameLoop::EndTurn()
 				}
 			}
 			player[i]->bankrupt = true;
+			for (size_t s = 0; s < 8; s++)
+			{
+				if (player[i]->property[s] == 3)
+					SetMonopoly((card::Type)s, false);
+			}
 		}
 		else
 		{
@@ -386,8 +425,6 @@ void STGameLoop::EndTurn()
 	if (button.size() > 2)
 	button.pop_back();
 	
-	card[plr->position]->tooldraw = false;
-
 	if (alive > 1)
 		{
 			do
@@ -402,29 +439,45 @@ void STGameLoop::EndTurn()
 }
 void STGameLoop::CheckCard()
 {
-	if (card[plr->position]->GetOwner() == card::Owner::neutral)
+	crd = card[plr->position];
+
+	if (crd->GetOwner() == card::Owner::neutral)
 	{
-		card[plr->position]->tooldraw = true;
+		crd->tooldraw = true;
 		button.push_back(new Button(
 			EngineData::strings[str::str_Buy],
 			Vector2f(100,50),
 			Vector2f(630,400),
 			form::id::buy_card));
 
-		if (plr->money < card[plr->position]->price)
+		if (plr->money < crd->price)
 		{
 			button[button.size() - 1]->SetInstance(form::Instance::active);
 		}
 	}
-	else if (card[plr->position]->GetOwner() == card::Owner::goverment)
+	else if (crd->GetOwner() == card::Owner::goverment)
 	{
-
+		if (crd->name == card::Name::startcard)
+		{
+			int temp = 0;
+			//temp
+			for (size_t i = 0; i < plr->prop.size(); i++)
+			{
+				temp +=plr->prop[i]->profit;
+			}
+			plr->SetMoney(temp);
+		}
 	}
 	else
 	{
-		card[plr->position]->tooldraw = true;
-		plr->money -= card[plr->position]->profit;
-		player[card[plr->position]->GetOwner()-1]->money += card[plr->position]->profit;
+		crd->tooldraw = true;
+		if (crd->owner != plr->id)
+		{
+			plr->SetMoney(-crd->profit);
+			
+			player[crd->GetOwner() - 1]->SetMoney(crd->profit);
+			
+		}
 	}
 }
 void STGameLoop::Animation(const float & dtime)
@@ -444,12 +497,47 @@ void STGameLoop::Animation(const float & dtime)
 		animtime = 0;
 	}
 }
-Button & STGameLoop::FindButton(form::id id)
+void STGameLoop::SetMonopoly(card::Type type, bool choise)
 {
-	for (size_t i = 0; i < button.size(); i++)
+	if (choise == true)
 	{
-		if (button[i]->GetID() == id)
-			return *button[i];
+		for (size_t i = 0; i < card.size(); i++)
+		{
+			if (card[i]->type == type && !card[i]->monopoly)
+			{
+				card[i]->profit *= 2;
+				card[i]->monopoly = true;
+				
+			}
+		}
+	}
+	else
+	{
+		for (size_t i = 0; i < card.size(); i++)
+		{
+			if (card[i]->type == type && card[i]->monopoly)
+			{
+				card[i]->profit /= 2;
+				card[i]->monopoly = false;
+				
+			}
+		}
+	}
+
+}
+void STGameLoop::SelectCard(Card &card)
+{
+	if (card.instance == form::Instance::left_click)
+	{
+		card.card.setFillColor(Color::Yellow);
+	}
+	if (card.instance == form::Instance::hover)
+	{
+		
+	}
+	if (card.instance == form::Instance::idle)
+	{
+		card.card.setFillColor(Color::White);
 	}
 }
 ////////////////////////////////////////////////////

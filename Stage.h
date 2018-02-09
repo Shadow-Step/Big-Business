@@ -17,7 +17,7 @@ class Stage
 {
 protected:
 	RectangleShape background;
-
+	vector<Button*>	button;
 	stg::Type stagetype;
 public:
 	Stage();
@@ -30,12 +30,12 @@ public:
 	virtual void CatchEvent(const Event&event) = 0;
 	//Getters
 	inline const stg::Type GetStageType()const { return this->stagetype; }
+	Button& FindButton(form::id id);
 };
 
 class STMainmenu : public Stage
 {
 private:
-	vector<Button*>button;
 	vector<Button*>warningbutt;
 	bool warnigbox = false;
 public:
@@ -46,7 +46,6 @@ public:
 	void Draw(RenderTarget &target)override;
 	void CheckButton(Button &button)override;
 	void CatchEvent(const Event &event)override;
-	Button& FindButton(form::id id);
 };
 
 class STGameLoop : public Stage
@@ -54,10 +53,10 @@ class STGameLoop : public Stage
 private:
 	vector<Card*>	card;
 	vector<Player*>	player;
-	vector<Button*>	button;
 	
-	Player * plr = nullptr;
-
+	Player *plr = nullptr;
+	Card   *crd = nullptr;
+	Card   *sel = nullptr;
 	bool animation		= false;
 	int currplayer		= 0;
 	int cubes			= 0;
@@ -74,8 +73,8 @@ public:
 	void EndTurn();
 	void CheckCard();
 	void Animation(const float &dtime);
-	//Getters
-	Button& FindButton(form::id id);
+	void SelectCard(Card &card);
+	void SetMonopoly(card::Type type, bool choise);
 	
 	//Static
 
@@ -94,7 +93,7 @@ public:
 class STNewGame : public Stage
 {
 private:
-	vector<Button*>button;
+	
 public:
 	STNewGame();
 	~STNewGame();

@@ -14,7 +14,14 @@ namespace card
 	};
 	enum Type
 	{
-
+		type1,
+		type2,
+		type3,
+		type4,
+		type5,
+		type6,
+		type7,
+		type8,
 	};
 	enum Name
 	{
@@ -35,11 +42,13 @@ private:
 	card::Type type;
 	card::Name name;
 	card::Owner owner = card::Owner::neutral;
+	form::Instance instance;
 
 	int price;
 	int profit;
 	int id;
 	bool tooldraw = false;
+	bool monopoly = false;
 public:
 	Card();
 	Card(Vector2f position,float angle);

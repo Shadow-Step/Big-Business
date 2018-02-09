@@ -90,3 +90,44 @@ public:
 	//Setters
 	inline void SetString(string str) { this->text.setString(str); }
 };
+class DynamicText : public Forms
+{
+private:
+	Text text;
+	Font font;
+
+	Vector2f direction;
+	Color color;
+
+	float lifetime;
+	float lifetimeMax;
+	float speed;
+	float slowdown;
+	float hidingtime;
+	float transparent;
+	bool alive;
+
+public:
+	//Constructor
+	DynamicText(std::string text,
+		Vector2f position,
+		Vector2f direction,
+		Color color,
+		int size,
+		float speed,
+		float slowdown,
+		float lifetime,
+		float hidingtime);
+
+	//Getters
+	inline const bool IsAlive()const { return this->alive; }
+
+	//Funtions
+	void Update(const float &time);
+	void Draw(RenderTarget &target);
+	static void SpawnText(string str,Vector2f position, Vector2f direction);
+	static void SpawnText(string str, Vector2f position, Vector2f direction,Color color);
+	//Static
+	static vector <DynamicText*> dyntext;
+	virtual ~DynamicText();
+};

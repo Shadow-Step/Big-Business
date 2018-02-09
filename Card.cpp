@@ -23,6 +23,7 @@ Card::Card(Vector2f position,float angle)
 	
 	this->price = 300;
 	this->profit = 100;
+	this->type = card::Type::type1;
 
 	switch (this->id)
 	{
@@ -90,7 +91,24 @@ Card::~Card()
 
 void Card::Update(const float & dtime)
 {
-	
+	if (instance != form::Instance::active)//temp
+	{
+		if (!card.getGlobalBounds().contains(EngineData::mousepos))
+			this->instance = form::Instance::idle;
+		else if (card.getGlobalBounds().contains(EngineData::mousepos))
+			this->instance = form::Instance::hover;
+	}
+
+	if (this->instance == form::Instance::hover &&
+		Mouse::isButtonPressed(Mouse::Left) &&
+		EngineData::clicktime > EngineData::clicktimeMax)
+	{
+		this->instance = form::Instance::left_click;
+		EngineData::clicktime = 0;
+	}
+	else if (this->instance == form::Instance::hover &&
+		Mouse::isButtonPressed(Mouse::Right))
+		this->instance = form::Instance::right_click;
 }
 void Card::Draw(RenderTarget & target)
 {
@@ -98,10 +116,10 @@ void Card::Draw(RenderTarget & target)
 	if(tooltip!=nullptr && tooldraw)
 	tooltip->Draw(target);
 }
+
 void Card::InitTextures()
 {
 }
-
 void Card::SetOwner(int id)
 {
 	this->owner = (card::Owner)id;
