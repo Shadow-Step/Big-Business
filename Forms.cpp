@@ -74,7 +74,7 @@ ToolTip::ToolTip(string str)
 	text.setCharacterSize(18);
 	text.setString(str);
 	text.setFillColor(Color(136, 136, 136));
-	text.setPosition(625, 300);
+	text.setPosition(625, 280);
 }
 void ToolTip::Update(const float & time)
 {
