@@ -14,7 +14,9 @@ private:
 	int position = 0;
 	int property[8];
 	bool bankrupt = false;
-	
+	bool inprison = false;
+	bool life = true;
+
 public:
 	Player(Vector2f position,int startMoney);
 	virtual ~Player();
@@ -22,7 +24,10 @@ public:
 	void Update(const float &dtime);
 	void Draw(RenderTarget & target);
 	void SetPosition(Vector2f position);
+	void EraseProperty(int id);
 	void SetMoney(int amount);
+	void BuyProperty(Card *card);
+	void SellProperty(Card *card);
 	//Getters
 	inline const int GetPosition()const { return this->position; }
 	inline const int GetID()const { return this->id; }

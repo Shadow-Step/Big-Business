@@ -17,6 +17,8 @@ namespace form
 		end_turn,
 		throw_cubes,
 		buy_card,
+		sell_card,
+		upgrade_card,
 
 		ng_players_01,
 		ng_players_02,

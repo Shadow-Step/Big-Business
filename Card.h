@@ -28,7 +28,8 @@ namespace card
 		startcard,
 		bonuscard,
 		prisoncard,
-		tempcard
+		taxcard,
+		taxes
 	};
 }
 
@@ -45,10 +46,14 @@ private:
 	form::Instance instance;
 
 	int price;
+	int baseprice;
 	int profit;
+	int baseprofit;
+	int level = 1;
 	int id;
 	bool tooldraw = false;
-	bool monopoly = false;
+	bool monopoly3 = false;
+	bool monopoly4 = false;
 public:
 	Card();
 	Card(Vector2f position,float angle);
@@ -58,8 +63,9 @@ public:
 	//Functions
 	void Update(const float &dtime);
 	void Draw(RenderTarget &target);
+	void UpdateText();
 	static void InitTextures();
-
+	void Select(bool choise);
 	//Setters
 	inline void SetPosition(Vector2f position) { this->card.setPosition(position); }
 	inline void SetPosition(float x, float y) { this->card.setPosition(x, y); }
@@ -69,10 +75,12 @@ public:
 	inline const Vector2f GetSize()const { return this->card.getSize(); }
 	inline const Vector2f GetPosition()const { return this->card.getPosition(); }
 	inline const card::Owner GetOwner()const { return this->owner; }
+	inline const int GetID()const { return this->id; }
 	//Static
 	static vector<Texture>texture;
 	static int ID;
 
 	friend class STGameLoop;
+	friend class Player;
 };
 
