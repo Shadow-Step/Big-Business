@@ -1,11 +1,11 @@
 #include "Engine.h"
-
+#include <time.h>
 //ToDo resize window and reset position for all forms
 //All stages
 
 int main()
 {
-
+	srand(time(NULL));
 	sf::RenderWindow window(VideoMode::getDesktopMode(), "Big Business");
 	EngineData::winsize = (Vector2f)window.getSize();
 	Engine engine(&window);

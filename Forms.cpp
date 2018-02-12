@@ -1,6 +1,6 @@
 #include "Forms.h"
 vector<DynamicText*> DynamicText::dyntext;
-
+Texture Button::buttontexture;
 
 Forms::Forms()
 {
@@ -17,12 +17,13 @@ Button::Button(Vector2f size, Vector2f position, form::id ID)
 }
 Button::Button(string str, Vector2f size, Vector2f position,form::id ID)
 {
-	this->button.setSize(size);
-	this->button.setPosition(position);
 	this->ID = ID;
 
+	this->button.setSize(size);
+	this->button.setPosition(position);
+	this->button.setTexture(&buttontexture);
 	this->buttontext.setFont(EngineData::font);
-	this->buttontext.setCharacterSize(30);
+	this->buttontext.setCharacterSize(28);
 	this->buttontext.setString(str);
 	this->buttontext.setFillColor(Color::Green);
 	ResetTextPosition();
@@ -57,6 +58,10 @@ void Button::Draw(RenderTarget & target)
 	if(texton)
 	target.draw(buttontext);
 }
+void Button::InitTextures()
+{
+	buttontexture.loadFromFile("texture/button.png");
+}
 void Button::ResetTextPosition()
 {
 	this->buttontext.setOrigin(0, 2 + (this->buttontext.getCharacterSize() - this->buttontext.getLocalBounds().height));
@@ -66,15 +71,32 @@ void Button::ResetTextPosition()
 
 ToolTip::ToolTip(string str)
 {
+	
 	tooltip.setSize(Vector2f(160, 240));
+	tooltip.setOutlineThickness(2);
 	tooltip.setPosition(600, 150);
-	tooltip.setFillColor(Color::White);
+	//tooltip.setFillColor(Color::White);
+	tooltip.setTexture(&tooltex);
+	
+	text.setFont(EngineData::font);
+	text.setCharacterSize(18);
+	text.setString(str);
+	text.setFillColor(Color(136, 136, 136));
+	text.setPosition(625, 280);
+}
+ToolTip::ToolTip(string str, Texture & texture)
+{
+	tooltip.setSize(Vector2f(160, 240));
+	tooltip.setOutlineThickness(2);
+	tooltip.setPosition(600, 150);
+	//tooltip.setFillColor(Color::White);
+	tooltip.setTexture(&texture);
 
 	text.setFont(EngineData::font);
 	text.setCharacterSize(18);
 	text.setString(str);
 	text.setFillColor(Color(136, 136, 136));
-	text.setPosition(625, 300);
+	text.setPosition(625, 280);
 }
 void ToolTip::Update(const float & time)
 {
@@ -113,7 +135,6 @@ DynamicText::DynamicText(std::string text,
 DynamicText::~DynamicText()
 {
 }
-
 void DynamicText::Update(const float &time)
 {
 
@@ -143,12 +164,10 @@ void DynamicText::Update(const float &time)
 		alive = false;
 	}
 }
-
 void DynamicText::Draw(RenderTarget &target)
 {
 	target.draw(this->text);
 }
-
 void DynamicText::SpawnText(string str, Vector2f position, Vector2f direction)
 {
 	DynamicText::dyntext.push_back(new DynamicText(str,
@@ -161,14 +180,13 @@ void DynamicText::SpawnText(string str, Vector2f position, Vector2f direction)
 		1.f,
 		0.5));
 }
-
-void DynamicText::SpawnText(string str, Vector2f position, Vector2f direction,Color color)
+void DynamicText::SpawnText(string str, Vector2f position, Vector2f direction,Color color,int size)
 {
 	DynamicText::dyntext.push_back(new DynamicText(str,
 		position,
 		direction,
 		color,
-		18,
+		size,
 		150.f,
 		300.f,
 		1.f,

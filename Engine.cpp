@@ -11,7 +11,7 @@ Engine::Engine(RenderWindow *window)
 	Cursor::InitCursor();
 	EngineData::InitFont();
 	EngineData::InitStrings();
-
+	Stage::InitTextures();
 	//mainmenu = new STMainmenu();
 	//this->currentStage = mainmenu;
 

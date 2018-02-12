@@ -1,4 +1,4 @@
-#include "Player.h"
+#include "Auction.h"
 #pragma once
 
 namespace stg
@@ -17,6 +17,7 @@ class Stage
 {
 protected:
 	RectangleShape background;
+	static Texture backtexture;
 	vector<Button*>	button;
 	stg::Type stagetype;
 public:
@@ -28,6 +29,7 @@ public:
 	virtual void Draw(RenderTarget &target) = 0;
 	virtual void CheckButton(Button &button) = 0;
 	virtual void CatchEvent(const Event&event) = 0;
+	static void InitTextures();
 	//Getters
 	inline const stg::Type GetStageType()const { return this->stagetype; }
 	Button& FindButton(form::id id);
@@ -53,15 +55,19 @@ class STGameLoop : public Stage
 private:
 	vector<Card*>	card;
 	vector<Player*>	player;
-	
+	vector<Button*> cardbutt;
+	Text turnext;
+
 	Player *plr = nullptr;
 	Card   *crd = nullptr;
 	Card   *sel = nullptr;
 	bool animation		= false;
+	bool selector		= false;
 	int currplayer		= 0;
 	int cubes			= 0;
 	float animtime		= 0;
 	float animtimeMax	= 0.1;
+
 public:
 	STGameLoop();
 	~STGameLoop();
@@ -74,8 +80,7 @@ public:
 	void CheckCard();
 	void Animation(const float &dtime);
 	void SelectCard(Card &card);
-	void SetMonopoly(card::Type type, bool choise);
-	
+	void Selector();
 	//Static
 
 	static int playersN;

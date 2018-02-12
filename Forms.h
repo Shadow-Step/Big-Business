@@ -17,6 +17,10 @@ namespace form
 		end_turn,
 		throw_cubes,
 		buy_card,
+		sell_card,
+		upgrade_card,
+		plus,
+		minus,
 
 		ng_players_01,
 		ng_players_02,
@@ -43,11 +47,11 @@ public:
 	Forms();
 	virtual ~Forms();
 };
-
 class Button : public Forms
 {
 private:
 	RectangleShape button;
+	static Texture buttontexture;
 	Text buttontext;
 	
 	form::id ID;
@@ -60,9 +64,11 @@ private:
 public:
 	Button(Vector2f size, Vector2f position,form::id ID);
 	Button(string str, Vector2f size, Vector2f position, form::id ID);
+
 	//Functions
 	void Update(const float &dtime);
 	void Draw(RenderTarget &target);
+	static void InitTextures();
 	//Getters
 	inline const form::id GetID()const { return this->ID; }
 	inline const form::Instance GetInstance()const { return this->instance; }
@@ -81,14 +87,17 @@ class ToolTip : Forms
 {
 private:
 	RectangleShape tooltip;
+	Texture tooltex;
 	Text text;
 public:
 	ToolTip(string str);
+	ToolTip(string str,Texture &texture);
+	//Functions
 	void Update(const float &time);
 	inline void Draw(RenderTarget & target) { target.draw(tooltip); target.draw(text); }
-
 	//Setters
 	inline void SetString(string str) { this->text.setString(str); }
+	inline void SetTexture(Texture texture) { this->tooltip.setTexture(&texture); }
 };
 class DynamicText : public Forms
 {
@@ -126,7 +135,8 @@ public:
 	void Update(const float &time);
 	void Draw(RenderTarget &target);
 	static void SpawnText(string str,Vector2f position, Vector2f direction);
-	static void SpawnText(string str, Vector2f position, Vector2f direction,Color color);
+	static void SpawnText(string str, Vector2f position, Vector2f direction,Color color,int size = 18);
+	
 	//Static
 	static vector <DynamicText*> dyntext;
 	virtual ~DynamicText();

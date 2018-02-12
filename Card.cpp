@@ -13,7 +13,7 @@ Card::Card()
 Card::Card(Vector2f position,float angle)
 {
 	this->id = Card::ID;
-
+	
 	this->card.setSize(Vector2f(80, 120));
 	this->card.setOrigin(card.getSize().x / 2, card.getSize().y / 2);
 	this->card.setPosition(position);
@@ -21,55 +21,194 @@ Card::Card(Vector2f position,float angle)
 	this->card.setOutlineThickness(1);
 	this->card.setOutlineColor(Color::Cyan);
 	
-	this->price = 300;
-	this->profit = 100;
-	this->type = card::Type::type1;
 
 	switch (this->id)
 	{
 	case 0:
+		this->type = card::Type::type2;
 		this->price = 180;
 		this->profit = 60;
 		break;
 	case 1:
+		this->type = card::Type::type3;
 		this->price = 300;
 		this->profit = 100;
 		break;
 	case 2:
+		this->type = card::Type::type3;
 		this->price = 240;
 		this->profit = 80;
 		break;
 	case 3:
+		this->type = card::Type::type2;
 		this->price = 450;
 		this->profit = 150;
 		break;
 	case 4:
-		this->price = 90;
-		this->profit = 30;
+		this->type = card::Type::type1;
+		this->owner = card::Owner::goverment;
+		this->name = card::Name::bonuscard;
 		break;
 	case 5:
+		this->type = card::Type::type2;
 		this->price = 120;
 		this->profit = 40;
 		break;
 	case 6:
+		this->type = card::Type::type4;
 		this->price = 210;
 		this->profit = 70;
 		break;
 	case 7:
+		this->type = card::Type::type4;
 		this->price = 600;
 		this->profit = 200;
 		break;
 	case 8:
+		this->type = card::Type::type4;
 		this->price = 240;
 		this->profit = 80;
 		break;
+	case 9:
+		this->type = card::Type::type5;
+		this->price = 1200;
+		this->profit = 400;
+		break;
+	case 10:
+		this->type = card::Type::type2;
+		this->price = 120;
+		this->profit = 40;
+		break;
+	case 11:
+		this->type = card::Type::type1;
+		this->owner = card::Owner::goverment;
+		this->name = card::Name::bonuscard;
+		break;
+	case 12:
+		this->type = card::Type::type5;
+		this->price = 250;
+		this->profit = 50;
+	case 13:
+		this->type = card::Type::type5;
+		this->price = 2100;
+		this->profit = 700;
+		break;
+	case 14:
+		this->type = card::Type::type3;
+		this->price = 90;
+		this->profit = 30;
+		break;
+	case 15:
+		this->type = card::Type::type3;
+		this->price = 600;
+		this->profit = 200;
+		break;
+	case 16:
+		this->type = card::Type::type5;
+		this->price = 1800;
+		this->profit = 600;
+		break;
+	case 17:
+		this->type = card::Type::type1;
+		this->owner = card::Owner::goverment;
+		this->name = card::Name::bonuscard;
+		break;
+	case 18:
+		this->type = card::Type::type7;
+		this->price = 300;
+		this->profit = 100;
+		break;
+	case 19:
+		this->type = card::Type::type6;
+		this->price = 210;
+		this->profit = 70;
+		break;
+	case 20:
+		this->type = card::Type::type7;
+		this->price = 240;
+		this->profit = 80;
+		break;
+	case 21:
+		this->type = card::Type::type4;
+		this->price = 900;
+		this->profit = 300;
+		break;
+	case 22:
+		this->type = card::Type::type7;
+		this->price = 90;
+		this->profit = 30;
+		break;
+	case 23:
+		this->type = card::Type::type6;
+		this->price = 1200;
+		this->profit = 300;
+		break;
+	case 24:
+		this->type = card::Type::type6;
+		this->price = 900;
+		this->profit = 300;
+		break;
+	case 25:
+		this->type = card::Type::type1;
+		this->owner = card::Owner::goverment;
+		this->name = card::Name::bonuscard;
+		break;
+	case 26:
+		this->type = card::Type::type7;
+		this->price = 600;
+		this->profit = 200;
+		break;
+	case 27:
+		this->type = card::Type::type6;
+		this->price = 2100;
+		this->profit = 700;
+		break;
 	}
 	
-	
-	this->tooltip = new ToolTip("Price: " + to_string(price) + "\n\n" +
+	switch (this->type)
+	{
+	case card::Type::type1:
+		card.setOutlineColor(Color(100,15,100));
+		this->card.setTexture(&Card::texture[1]);
+		break;
+	case card::Type::type2:
+		this->card.setTexture(&Card::texture[0]);
+		card.setOutlineColor(Color::Red);
+		break;
+	case card::Type::type3:
+		this->card.setTexture(&Card::texture[0]);
+		card.setOutlineColor(Color(100,100,100));
+		break;
+	case card::Type::type4:
+		this->card.setTexture(&Card::texture[0]);
+		card.setOutlineColor(Color(123,11,200));
+		break;
+	case card::Type::type5:
+		this->card.setTexture(&Card::texture[0]);
+		card.setOutlineColor(Color::Blue);
+		break;
+	case card::Type::type6:
+		this->card.setTexture(&Card::texture[0]);
+		card.setOutlineColor(Color::Magenta);
+		break;
+	case card::Type::type7:
+		this->card.setTexture(&Card::texture[0]);
+		card.setOutlineColor(Color::Yellow);
+		break;
+	case card::Type::type8:
+		this->card.setTexture(&Card::texture[0]);
+		card.setOutlineColor(Color::Green);
+		break;
+	}
+
+	if(type != card::Type::type1)
+	this->tooltip = new ToolTip("Lvl " + to_string(level) + 
+		"\n\n"+"Price: " + to_string(price) + "\n\n" +
 		"Profit: " + to_string(profit) + "\n\n" +
 		"Owner: ");
-
+	
+	baseprofit = this->profit;
+	baseprice = this->price;
 	Card::ID++;
 }
 Card::Card(Vector2f position, float angle,card::Name name)
@@ -81,7 +220,18 @@ Card::Card(Vector2f position, float angle,card::Name name)
 	this->card.setOutlineThickness(1);
 	this->card.setOutlineColor(Color::Cyan);
 
+	if(name == card::Name::taxcard)
+	this->card.setTexture(&Card::texture[3]);
+	else if (name == card::Name::prisoncard)
+	this->card.setTexture(&Card::texture[4]);
+	else
+	this->card.setTexture(&Card::texture[2]);
+
+	this->price = 99999;
+	this->name = name;
+	this->type = card::Type::type8;
 	this->owner = card::Owner::goverment;
+
 }
 Card::~Card()
 {
@@ -91,6 +241,7 @@ Card::~Card()
 
 void Card::Update(const float & dtime)
 {
+	
 	if (instance != form::Instance::active)//temp
 	{
 		if (!card.getGlobalBounds().contains(EngineData::mousepos))
@@ -99,16 +250,40 @@ void Card::Update(const float & dtime)
 			this->instance = form::Instance::hover;
 	}
 
-	if (this->instance == form::Instance::hover &&
+	/*if (this->instance == form::Instance::hover &&
 		Mouse::isButtonPressed(Mouse::Left) &&
 		EngineData::clicktime > EngineData::clicktimeMax)
 	{
-		this->instance = form::Instance::left_click;
+		this->instance = form::Instance::active;
+		tooldraw = true;
 		EngineData::clicktime = 0;
 	}
-	else if (this->instance == form::Instance::hover &&
-		Mouse::isButtonPressed(Mouse::Right))
-		this->instance = form::Instance::right_click;
+	else if (this->instance == form::Instance::active &&
+		Mouse::isButtonPressed(Mouse::Left) &&
+		!card.getGlobalBounds().contains(EngineData::mousepos))
+	{
+		EngineData::clicktime = 0;
+		this->instance = form::Instance::idle;
+		tooldraw = false;
+	}*/
+
+
+	if (tooldraw)
+		card.setOutlineThickness(3);
+	else
+		card.setOutlineThickness(-5);
+
+	if (monopoly3)
+	{
+		card.setOutlineThickness(-12);
+		//card.setOutlineColor(Color(250,100,0));
+	}
+	if (monopoly4)
+	{
+		card.setOutlineThickness(-16);
+		//card.setOutlineColor(Color(64, 128, 128));
+	}
+	
 }
 void Card::Draw(RenderTarget & target)
 {
@@ -116,9 +291,48 @@ void Card::Draw(RenderTarget & target)
 	if(tooltip!=nullptr && tooldraw)
 	tooltip->Draw(target);
 }
-
+void Card::UpdateText()
+{
+	if (tooltip != 0)
+	{
+		if(owner!=card::Owner::neutral)
+		tooltip->SetString("Lvl " + to_string(level) +
+			"\n\n" + "Price: " + to_string(price) + "\n\n" +
+			"Profit: " + to_string(profit) + "\n\n" +
+			"Owner: Pl " + to_string(owner));
+		else
+			tooltip->SetString("Lvl " + to_string(level) +
+				"\n\n" + "Price: " + to_string(price) + "\n\n" +
+				"Profit: " + to_string(profit) + "\n\n" +
+				"Owner: ");
+	}
+}
 void Card::InitTextures()
 {
+	Texture temp;
+	temp.loadFromFile("texture/card.jpg");
+	Card::texture.push_back(temp);
+	temp.loadFromFile("texture/bonuscard.png");
+	Card::texture.push_back(temp);
+	temp.loadFromFile("texture/startcard.png");
+	Card::texture.push_back(temp);
+	temp.loadFromFile("texture/taxcard.png");
+	Card::texture.push_back(temp);
+	temp.loadFromFile("texture/jailcard.png");
+	Card::texture.push_back(temp);
+}
+void Card::Select(bool choise)
+{
+	if (choise = true)
+	{
+		card.setOutlineThickness(3);
+		tooldraw = true;
+	}
+	else
+	{
+		card.setOutlineThickness(1);
+		tooldraw = false;
+	}
 }
 void Card::SetOwner(int id)
 {
@@ -127,25 +341,29 @@ void Card::SetOwner(int id)
 	{
 	case card::Owner::player_1:
 		card.setFillColor(Color::Red);
-		tooltip->SetString("Price: " + to_string(price) + "\n\n" +
+		tooltip->SetString("Lvl " + to_string(level) +
+			"\n\n" + "Price: " + to_string(price) + "\n\n" +
 			"Profit: " + to_string(profit) + "\n\n" +
 			"Owner: Pl 1");
 		break;
 	case card::Owner::player_2:
 		card.setFillColor(Color::Blue);
-		tooltip->SetString("Price: " + to_string(price) + "\n\n" +
+		tooltip->SetString("Lvl " + to_string(level) +
+			"\n\n" + "Price: " + to_string(price) + "\n\n" +
 			"Profit: " + to_string(profit) + "\n\n" +
 			"Owner: Pl 2");
 		break;
 	case card::Owner::player_3:
 		card.setFillColor(Color::Green);
-		tooltip->SetString("Price: " + to_string(price) + "\n\n" +
+		tooltip->SetString("Lvl " + to_string(level) +
+			"\n\n" + "Price: " + to_string(price) + "\n\n" +
 			"Profit: " + to_string(profit) + "\n\n" +
 			"Owner: Pl 3");
 		break;
 	case card::Owner::player_4:
 		card.setFillColor(Color::Magenta);
-		tooltip->SetString("Price: " + to_string(price) + "\n\n" +
+		tooltip->SetString("Lvl " + to_string(level) +
+			"\n\n" + "Price: " + to_string(price) + "\n\n" +
 			"Profit: " + to_string(profit) + "\n\n" +
 			"Owner: Pl 4");
 		break;

@@ -3,12 +3,20 @@
 int STGameLoop::playersN = 1;
 int STGameLoop::startMoney = 0;
 bool STGameLoop::gameStarted = false;
+Texture Stage::backtexture;
 
 Stage::Stage()
 {
+	
+	this->background.setSize(EngineData::winsize);
+	this->background.setTexture(&backtexture);
 }
 Stage::~Stage()
 {
+}
+void Stage::InitTextures()
+{
+	Stage::backtexture.loadFromFile("texture/back.jpg");
 }
 Button & Stage::FindButton(form::id id)
 {
@@ -21,9 +29,6 @@ Button & Stage::FindButton(form::id id)
 /////////////////////////////////////////
 STMainmenu::STMainmenu()
 {
-	this->background.setSize(EngineData::winsize);
-	this->background.setFillColor(Color::Cyan);//temp
-
 	int space = 5;
 	float x = EngineData::winsize.x / 2 - 125;
 	float y = 150;
@@ -110,6 +115,7 @@ void STMainmenu::Update(const float & dtime)
 }
 void STMainmenu::Draw(RenderTarget & target)
 {
+	target.draw(background);
 	for (size_t i = 0; i < button.size(); i++)
 	{
 		button[i]->Draw(target);
@@ -170,12 +176,18 @@ void STMainmenu::CatchEvent(const Event & event)
 {
 	
 }
-
 //////////////////////////////////////////////////////
 STGameLoop::STGameLoop()
 {
+	Button::InitTextures();
 	Card::InitTextures();
 	
+	
+	
+	turnext.setFont(EngineData::font);
+	turnext.setCharacterSize(20);
+	turnext.setPosition(600, 580);
+
 	Vector2f size(220, 60);
 	button.push_back(new Button(
 		EngineData::strings[str::str_EndTurn],
@@ -203,7 +215,7 @@ STGameLoop::STGameLoop()
 		else if (i == 9)
 			card.push_back(new Card(Vector2f(
 				EngineData::winsize.x-20 - pos.x - (size.x*i) - (space*i),
-				EngineData::winsize.y - size.y + pos.y), 0,card::Name::tempcard));
+				EngineData::winsize.y - size.y + pos.y), 0,card::Name::taxcard));
 		else
 		card.push_back(new Card(Vector2f(
 		EngineData::winsize.x - pos.x - (size.x*i)-(space*i),
@@ -222,7 +234,7 @@ STGameLoop::STGameLoop()
 		if (i == 0)
 			card.push_back(new Card(Vector2f(
 				card[15]->GetPosition().x,
-				card[15]->GetPosition().y-104), 0, card::Name::bonuscard));
+				card[15]->GetPosition().y-104), 0, card::Name::startcard));
 		else if (i == 9)
 			card.push_back(new Card(Vector2f(
 				card[card.size()-1]->GetPosition().x+104,
@@ -245,6 +257,17 @@ STGameLoop::STGameLoop()
 		player.push_back(new Player(card[0]->GetPosition(),startMoney));
 	}
 
+	cardbutt.push_back(new Button(
+		"Sell",
+		Vector2f(100, 50),
+		Vector2f(765, 340),
+		form::id::sell_card));
+	cardbutt.push_back(new Button(
+		"Upgrade",
+		Vector2f(150, 50),
+		Vector2f(765, 285),
+		form::id::upgrade_card));
+
 	plr = player[0];
 	gameStarted = true;
 }
@@ -258,6 +281,10 @@ STGameLoop::~STGameLoop()
 	for (size_t i = 0; i < player.size(); i++)
 	{
 		delete player[i];
+	}
+	for (size_t i = 0; i < cardbutt.size(); i++)
+	{
+		delete cardbutt[i];
 	}
 }
 void STGameLoop::Update(const float & dtime)
@@ -295,9 +322,19 @@ void STGameLoop::Update(const float & dtime)
 			DynamicText::dyntext.erase(DynamicText::dyntext.begin() + i);
 		}
 	}
+
+	if (crd != nullptr && crd->owner == plr->id)
+	{
+		for (size_t i = 0; i < cardbutt.size(); i++)
+		{
+				cardbutt[i]->Update(dtime);
+				CheckButton(*cardbutt[i]);
+		}
+	}
 }
 void STGameLoop::Draw(RenderTarget & target)
 {
+	target.draw(background);
 	for (size_t i = 0; i < button.size(); i++)
 	{
 		button[i]->Draw(target);
@@ -314,6 +351,14 @@ void STGameLoop::Draw(RenderTarget & target)
 	{
 		DynamicText::dyntext[i]->Draw(target);
 	}
+	if (crd != nullptr && crd->owner == plr->id)
+	{
+		for (size_t i = 0; i < cardbutt.size(); i++)
+		{
+			cardbutt[i]->Draw(target);
+		}
+	}
+	target.draw(turnext);
 }
 void STGameLoop::CheckButton(Button & button)
 {
@@ -342,28 +387,58 @@ void STGameLoop::CheckButton(Button & button)
 			EndTurn();
 			break;
 		case form::id::throw_cubes:
-			button.SetInstance(form::Instance::active);
-			FindButton(form::id::end_turn).SetInstance(form::Instance::hover);
-			cubes = rand() % 12 + 2;
-			animation = true;
+			if (crd != nullptr)
+			{
+				crd->card.setOutlineThickness(1);
+				crd->tooldraw = false;
+				crd = nullptr;
+			}
+			if (!plr->bankrupt)
+			{
+				button.SetInstance(form::Instance::active);
+				FindButton(form::id::end_turn).SetInstance(form::Instance::hover);
+				cubes = rand() % 11 + 2;
+				DynamicText::SpawnText(to_string(cubes),
+					Vector2f(890, 540), Vector2f(0, -1), Color::Blue, 30);
+
+				animation = true;
+			}
+			else if (plr->bankrupt && plr->prop.size() == 0)
+			{
+				FindButton(form::id::end_turn).SetInstance(form::Instance::hover);
+			}
+			else
+			{
+				DynamicText::SpawnText("Bankrupt!",
+					Vector2f(835, 550), Vector2f(0, -1), Color::Red,22);
+			}
 			break;
 		case form::id::buy_card:
-			if (plr->money >= crd->price)
+			if (plr->money > crd->price)
 			{
-				plr->property[crd->type]++;
-				plr->prop.push_back(crd);
-				plr->SetMoney(-crd->price);
-				if (plr->property[crd->type] == 3)
-					SetMonopoly(crd->type, true);
-				crd->SetOwner(plr->GetID());
-
-				//card[player[currplayer]->GetPosition()]->SetOwner(player[currplayer]->GetID());
+				plr->BuyProperty(crd);
+				//temp
 				delete this->button[this->button.size() - 1];
 				this->button.pop_back();
 			}
 			else
 			{
 				button.SetInstance(form::Instance::active);
+			}
+			break;
+		case form::id::sell_card:
+			plr->SellProperty(crd);
+			crd->UpdateText();
+			break;
+		case form::id::upgrade_card:
+			button.SetInstance(form::Instance::hover);
+			if (plr->money > crd->price && crd->level < 3)
+			{
+				plr->SetMoney(-crd->price);
+				crd->profit += crd->baseprofit;
+				crd->price += crd->baseprice;
+				crd->level++;
+				crd->UpdateText();
 			}
 			break;
 		}
@@ -374,72 +449,138 @@ void STGameLoop::CatchEvent(const Event & event)
 	
 	if (EngineData::clicktime > EngineData::clicktimeMax)
 	{
+		if (selector && Mouse::isButtonPressed(Mouse::Left))
+		{
+			Selector();
+		}
+		if (selector && Mouse::isButtonPressed(Mouse::Right))
+		{
+			EngineData::clicktime = 0;
+			if (crd != nullptr)
+			{
+				crd->card.setOutlineThickness(1);
+				crd->tooldraw = false;
+				crd = nullptr;
+			}
+		}
 		if (Keyboard::isKeyPressed(Keyboard::Escape))
 		{
 			EngineData::clicktime = 0;
 			EngineData::msgbox.push_back(MsgBox::stage_switch_mainmenu);
 		}
-		if (Keyboard::isKeyPressed(Keyboard::Space))
+		if (Keyboard::isKeyPressed(Keyboard::Space) && !animation)
 		{
 			EngineData::clicktime = 0;
-			plr->SetMoney(plr->prop[plr->prop.size()-1]->price / 2);
-			plr->prop[plr->prop.size() - 1]->SetOwner(card::Owner::neutral);
-			plr->prop.pop_back();
+			if (FindButton(form::id::end_turn).GetInstance() != form::Instance::active)
+			{
+				FindButton(form::id::end_turn).SetInstance(form::Instance::active);
+				FindButton(form::id::throw_cubes).SetInstance(form::Instance::hover);
+				EndTurn();
+			}
+			else
+			{
+				if (crd != nullptr)
+				{
+					crd->card.setOutlineThickness(1);
+					crd->tooldraw = false;
+					crd = nullptr;
+				}
+				if (!plr->bankrupt)
+				{
+					FindButton(form::id::throw_cubes).SetInstance(form::Instance::active);
+					FindButton(form::id::end_turn).SetInstance(form::Instance::hover);
+					cubes = rand() % 11 + 2;
+					DynamicText::SpawnText(to_string(cubes),
+						Vector2f(890, 540), Vector2f(0, -1), Color::Blue, 30);
+
+					animation = true;
+				}
+				else if (plr->bankrupt && plr->prop.size() == 0)
+				{
+					FindButton(form::id::end_turn).SetInstance(form::Instance::hover);
+				}
+				else
+				{
+					DynamicText::SpawnText("Bankrupt!",
+						Vector2f(835, 550), Vector2f(0, -1), Color::Red, 22);
+				}
+			}
 		}
 	}
 }
 void STGameLoop::EndTurn()
 {
-	crd->tooldraw = false;
-	crd = nullptr;
+	if (crd != nullptr)
+	{
+		crd->tooldraw = false;
+		Player::lot = nullptr;
+		crd = nullptr;
+	}
+	selector = true;
 
-	int alive = 0;
 	for (size_t i = 0; i < player.size(); i++)
 	{
-		if (player[i]->money <= 0)
+		if (player[i]->money <= 0 && player[i]->prop.size()==0)
 		{
 			for (size_t c = 0; c < card.size(); c++)
 			{
-				if (card[c]->owner == (card::Owner)player[i]->GetID())
-				{
+				if (card[c]->owner == player[i]->id)
 					card[c]->SetOwner(card::Owner::neutral);
-				}
 			}
-			player[i]->bankrupt = true;
-			for (size_t s = 0; s < 8; s++)
-			{
-				if (player[i]->property[s] == 3)
-					SetMonopoly((card::Type)s, false);
-			}
+			delete player[i];
+			player.erase(player.begin() + i);
+			currplayer--;
 		}
-		else
-		{
-			alive++;
-		}
-	}
-	if (alive == 1)
-	{
-		//Win stage
 	}
 	
 	if (button.size() > 2)
 	button.pop_back();
 	
-	if (alive > 1)
+	if (player.size() > 0)
+	{
+		bool select = false;
+		while (!select)
 		{
-			do
+			currplayer++;
+			if (currplayer >= player.size())
+				currplayer = 0;
+			if (player[currplayer]->inprison == true)
 			{
-				currplayer++;
-				if (currplayer >= player.size())
-					currplayer = 0;
-
-			} while (player[currplayer]->bankrupt);
-			plr = player[currplayer];
+				player[currplayer]->inprison = false;
+			}
+			else
+			{
+				plr = player[currplayer];
+				select = true;
+				turnext.setString("Player: " + to_string(plr->id) + " turn");
+				switch (plr->id)
+				{
+				case 1:
+					turnext.setFillColor(Color::Red);
+					break;
+				case 2:
+					turnext.setFillColor(Color::Blue);
+					break;
+				case 3:
+					turnext.setFillColor(Color::Green);
+					break;
+				case 4:
+					turnext.setFillColor(Color::Magenta);
+					break;
+				}
+			}
 		}
+	}
+	else
+	{
+		
+	}
 }
 void STGameLoop::CheckCard()
 {
+	selector = false;
 	crd = card[plr->position];
+	
 
 	if (crd->GetOwner() == card::Owner::neutral)
 	{
@@ -450,9 +591,10 @@ void STGameLoop::CheckCard()
 			Vector2f(630,400),
 			form::id::buy_card));
 
-		if (plr->money < crd->price)
+		if (plr->money <= crd->price)
 		{
 			button[button.size() - 1]->SetInstance(form::Instance::active);
+			Player::StartAuction(crd);
 		}
 	}
 	else if (crd->GetOwner() == card::Owner::goverment)
@@ -467,16 +609,91 @@ void STGameLoop::CheckCard()
 			}
 			plr->SetMoney(temp);
 		}
+		else if (crd->name == card::Name::taxcard)
+		{
+			int temp = 0;
+			//temp
+			for (size_t i = 0; i < plr->prop.size(); i++)
+			{
+				temp += plr->prop[i]->price/10;
+			}
+			plr->SetMoney(-temp);
+		}
+		else if (crd->name == card::Name::prisoncard)
+		{
+			plr->inprison = true;
+			DynamicText::SpawnText("Prison!",
+				Vector2f(630,500), Vector2f(0,-1), Color::Red,22);
+		}
+		else if (crd->name == card::Name::bonuscard)
+		{
+			vector<int>index;
+			crd->tooldraw = true;
+			switch (rand()%4)
+			{
+			case 0:
+				delete crd->tooltip;
+				crd->tooltip = new ToolTip("Gain 500");
+				plr->SetMoney(500);
+				break;
+			case 1:
+				delete crd->tooltip;
+				crd->tooltip = new ToolTip("Get random propety");
+					for (size_t i = 0; i < card.size(); i++)
+					{
+						if (card[i]->GetOwner() == card::Owner::neutral)
+							index.push_back(i);
+					}
+					if (index.size() > 0)
+					{
+						int in = index[rand() % index.size()];
+						plr->SetMoney(card[in]->price);
+						plr->BuyProperty(card[in]);
+					}
+				break;
+			case 2:
+				delete crd->tooltip;
+				crd->tooltip = new ToolTip("Gain 300");
+				plr->SetMoney(300);
+				break;
+			case 3:
+				delete crd->tooltip;
+				crd->tooltip = new ToolTip("Gain 400");
+				plr->SetMoney(400);
+				break;
+			}
+		}
 	}
 	else
 	{
 		crd->tooldraw = true;
 		if (crd->owner != plr->id)
 		{
-			plr->SetMoney(-crd->profit);
+			int in = 0;
+			for (size_t i = 0; i < player.size(); i++)
+			{
+				if (player[i]->id == crd->owner)
+				{
+					in = i;
+				}
+			}
+			if (!player[in]->inprison)
+			{
+				plr->SetMoney(-crd->profit);
+				player[in]->SetMoney(crd->profit);
+			}
 			
-			player[crd->GetOwner() - 1]->SetMoney(crd->profit);
-			
+		}
+		else if (crd->owner == plr->id)
+		{
+			plr->SetMoney(crd->profit / 3);
+			/*for (size_t i = 0; i < plr->prop.size(); i++)
+			{
+				if (plr->prop[i]->name == card::Name::taxes)
+				{
+					
+				}
+			}*/
 		}
 	}
 }
@@ -497,39 +714,34 @@ void STGameLoop::Animation(const float & dtime)
 		animtime = 0;
 	}
 }
-void STGameLoop::SetMonopoly(card::Type type, bool choise)
+void STGameLoop::Selector()
 {
-	if (choise == true)
-	{
-		for (size_t i = 0; i < card.size(); i++)
-		{
-			if (card[i]->type == type && !card[i]->monopoly)
-			{
-				card[i]->profit *= 2;
-				card[i]->monopoly = true;
-				
-			}
-		}
-	}
-	else
-	{
-		for (size_t i = 0; i < card.size(); i++)
-		{
-			if (card[i]->type == type && card[i]->monopoly)
-			{
-				card[i]->profit /= 2;
-				card[i]->monopoly = false;
-				
-			}
-		}
-	}
+	//Clear selector
+	
 
+	for (size_t i = 0; i < card.size(); i++)
+	{
+		if (card[i]->card.getGlobalBounds().contains(EngineData::mousepos))
+		{
+			if (crd != nullptr)
+			{
+				crd->card.setOutlineThickness(1);
+				crd->tooldraw = false;
+				crd = nullptr;
+			}
+			//Select
+			crd = card[i];
+			crd->card.setOutlineThickness(3);
+			crd->tooldraw = true;
+			return;///!!!
+		}
+	}
 }
 void STGameLoop::SelectCard(Card &card)
 {
-	if (card.instance == form::Instance::left_click)
+	if (card.instance == form::Instance::active)
 	{
-		card.card.setFillColor(Color::Yellow);
+		
 	}
 	if (card.instance == form::Instance::hover)
 	{
@@ -537,7 +749,7 @@ void STGameLoop::SelectCard(Card &card)
 	}
 	if (card.instance == form::Instance::idle)
 	{
-		card.card.setFillColor(Color::White);
+		
 	}
 }
 ////////////////////////////////////////////////////
@@ -565,24 +777,24 @@ STNewGame::STNewGame()
 	Vector2f pos(500, 100);
 	x = 0;
 
-	button.push_back(new Button(
+	button.push_back(new Button("1",
 		tempsize,
 		Vector2f(pos.x, pos.y),
 		form::id::ng_players_01));
 	button[button.size() - 1]->SetInstance(form::Instance::active);
 
 	x++;
-	button.push_back(new Button(
+	button.push_back(new Button("2",
 		tempsize,
 		Vector2f(pos.x+(tempsize.x*x)+space*x, pos.y),
 		form::id::ng_players_02));
 	x++;
-	button.push_back(new Button(
+	button.push_back(new Button("3",
 		tempsize,
 		Vector2f(pos.x + (tempsize.x*x) + space * x, pos.y),
 		form::id::ng_players_03));
 	x++;
-	button.push_back(new Button(
+	button.push_back(new Button("4",
 		tempsize,
 		Vector2f(pos.x + (tempsize.x*x) + space * x, pos.y),
 		form::id::ng_players_04));
@@ -605,6 +817,7 @@ void STNewGame::Update(const float & dtime)
 }
 void STNewGame::Draw(RenderTarget & target)
 {
+	target.draw(background);
 	for (size_t i = 0; i < button.size(); i++)
 	{
 		button[i]->Draw(target);
@@ -615,9 +828,9 @@ void STNewGame::CheckButton(Button & button)
 	if(button.GetInstance() == form::Instance::active)
 		button.SetColor(Color::Magenta);
 	else if (button.GetInstance() == form::Instance::idle)
-		button.SetColor(Color::Cyan);
-	else if (button.GetInstance() == form::Instance::hover)
 		button.SetColor(Color::Blue);
+	else if (button.GetInstance() == form::Instance::hover)
+		button.SetColor(Color::Red);
 	else if (button.GetInstance() == form::Instance::left_click)
 	{
 		switch (button.GetID())
