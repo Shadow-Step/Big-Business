@@ -14,7 +14,9 @@ private:
 	int money;
 	int position = 0;
 	int property[8];
-	int bet = 0;
+
+	bool active = false;
+	bool AI = false;
 	bool bankrupt = false;
 	bool inprison = false;
 	bool life = true;

@@ -11,6 +11,13 @@ namespace stg
 		Loadgame,
 		Options
 	};
+	enum AIstage
+	{
+		start_turn,
+		throw_cubes,
+		check_card,
+		end_turn
+	};
 }
 
 class Stage
@@ -58,9 +65,12 @@ private:
 	vector<Button*> cardbutt;
 	Text turnext;
 
-	Player *plr = nullptr;
-	Card   *crd = nullptr;
-	Card   *sel = nullptr;
+	Player *plr					= nullptr;
+	Card   *crd					= nullptr;
+	Card   *sel					= nullptr;
+	WarningBox *warning			= nullptr;
+	void(STGameLoop::*fooptr)() = nullptr;
+
 	bool animation		= false;
 	bool selector		= false;
 	int currplayer		= 0;
@@ -68,6 +78,7 @@ private:
 	float animtime		= 0;
 	float animtimeMax	= 0.1;
 
+	stg::AIstage aistage = stg::AIstage::start_turn;
 public:
 	STGameLoop();
 	~STGameLoop();
@@ -76,10 +87,13 @@ public:
 	void Draw(RenderTarget &target)override;
 	void CheckButton(Button&button)override;
 	void CatchEvent(const Event &event)override;
-	void EndTurn();
-	void CheckCard();
+	
+	void AICheck(Player &player);
+
+	void ThrowCubes();
 	void Animation(const float &dtime);
-	void SelectCard(Card &card);
+	void CheckCard();
+	void EndTurn();
 	void Selector();
 	//Static
 

@@ -141,3 +141,24 @@ public:
 	static vector <DynamicText*> dyntext;
 	virtual ~DynamicText();
 };
+class WarningBox : public Forms
+{
+private:
+	RectangleShape board;
+	Text text;
+	vector<Button*>button;
+	
+
+	bool life = true;
+	bool choise = false;
+public:
+	WarningBox(Vector2f size, Vector2f position, string text);
+	~WarningBox();
+
+	void Update(const float &dtime);
+	void Draw(RenderTarget & target);
+	void CheckButtons(Button & button);
+
+	inline const bool GetLife()const { return this->life; }
+	inline const bool GetCoise()const { return this->choise; }
+};

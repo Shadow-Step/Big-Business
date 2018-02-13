@@ -192,3 +192,77 @@ void DynamicText::SpawnText(string str, Vector2f position, Vector2f direction,Co
 		1.f,
 		0.5));
 }
+
+WarningBox::WarningBox(Vector2f size, Vector2f position, string text)
+{
+	
+	this->board.setSize(size);
+	this->board.setPosition(position);
+
+	this->text.setFont(EngineData::font);
+	this->text.setCharacterSize(16);
+	this->text.setFillColor(Color::Red);
+	this->text.setString(text);
+	this->text.setPosition(position);
+
+	FloatRect pos = board.getGlobalBounds();
+	button.push_back(new Button(
+		EngineData::strings[str::str_No],
+		Vector2f(75,50),
+		Vector2f(pos.left, pos.top+pos.height-50),
+		form::id::no));
+
+
+	button.push_back(new Button(
+		EngineData::strings[str::str_Yes],
+		Vector2f(75, 50),
+		Vector2f(pos.left+pos.width-75, pos.top + pos.height - 50),
+		form::id::yes));
+}
+
+WarningBox::~WarningBox()
+{
+}
+
+void WarningBox::Update(const float & dtime)
+{
+	for (size_t i = 0; i < button.size(); i++)
+	{
+		button[i]->Update(dtime);
+		CheckButtons(*button[i]);
+	}
+}
+
+void WarningBox::Draw(RenderTarget & target)
+{
+	target.draw(board);
+	target.draw(text);
+	for (size_t i = 0; i < button.size(); i++)
+	{
+		button[i]->Draw(target);
+	}
+}
+
+void WarningBox::CheckButtons(Button & button)
+{
+	if (button.GetInstance() == form::Instance::idle)
+		button.SetColor(Color::Blue);
+	else if (button.GetInstance() == form::Instance::hover)
+		button.SetColor(Color::Red);
+	else if (button.GetInstance() == form::Instance::left_click)
+	{
+		switch (button.GetID())
+		{
+		case form::id::yes:
+			life = false;
+			choise = true;
+			break;
+		case form::id::no:
+			life = false;
+			choise = false;
+			return;
+			break;
+		}
+	}
+
+}

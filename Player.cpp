@@ -6,7 +6,7 @@ int Player::bets[5];
 Player::Player(Vector2f position, int startMoney)
 {
 	this->id = Player::ID;
-	//this->money = startMoney;
+	this->money = startMoney;
 	this->sprite.setRadius(11);
 	this->sprite.setOrigin(11, 11);
 	this->sprite.setOutlineThickness(1);
@@ -14,7 +14,7 @@ Player::Player(Vector2f position, int startMoney)
 	
 	this->SetPosition(position);
 	
-	this->money = 1200;
+	//this->money = 1200;
 	for (size_t i = 0; i < 8; i++)
 	{
 		this->property[i] = 0;
@@ -93,14 +93,17 @@ Player::~Player()
 
 void Player::Update(const float & dtime)
 {
+	
 	name.setString("Player " + to_string(id) + "\n\n" + "Money: " + to_string(money));
 	if (money <= 0 && prop.size() == 0)
 	{
 		life = false;
 	}
+
 	if(Player::lot!=nullptr && money>Player::lot->price)
 	for (size_t i = 0; i < aucbutt.size(); i++)
 	{
+		aucbutt[1]->TextSetString(to_string(bets[id]));
 		aucbutt[i]->Update(dtime);
 		CheckButton(*aucbutt[i]);
 	}
