@@ -84,11 +84,11 @@ ToolTip::ToolTip(string str)
 	text.setFillColor(Color(136, 136, 136));
 	text.setPosition(625, 280);
 }
-ToolTip::ToolTip(string str, Texture & texture)
+ToolTip::ToolTip(string str, Texture & texture, Vector2f position)
 {
 	tooltip.setSize(Vector2f(160, 240));
 	tooltip.setOutlineThickness(2);
-	tooltip.setPosition(600, 150);
+	tooltip.setPosition(position);
 	//tooltip.setFillColor(Color::White);
 	tooltip.setTexture(&texture);
 
@@ -219,11 +219,9 @@ WarningBox::WarningBox(Vector2f size, Vector2f position, string text)
 		Vector2f(pos.left+pos.width-75, pos.top + pos.height - 50),
 		form::id::yes));
 }
-
 WarningBox::~WarningBox()
 {
 }
-
 void WarningBox::Update(const float & dtime)
 {
 	for (size_t i = 0; i < button.size(); i++)
@@ -232,7 +230,6 @@ void WarningBox::Update(const float & dtime)
 		CheckButtons(*button[i]);
 	}
 }
-
 void WarningBox::Draw(RenderTarget & target)
 {
 	target.draw(board);
@@ -242,7 +239,6 @@ void WarningBox::Draw(RenderTarget & target)
 		button[i]->Draw(target);
 	}
 }
-
 void WarningBox::CheckButtons(Button & button)
 {
 	if (button.GetInstance() == form::Instance::idle)

@@ -75,7 +75,15 @@ Player::Player(Vector2f position, int startMoney)
 		Vector2f(buttonpos.x+148,buttonpos.y),
 		form::id::minus));
 
+	UpdateText();
 	Player::ID++;
+
+	//temp
+	this->cards.push_back(new Card(card::Name::crd_lumbermill));
+	this->cards.push_back(new Card(card::Name::crd_factory));
+	this->cards.push_back(new Card(card::Name::crd_goldmine));
+	this->cards.push_back(new Card(card::Name::crd_ironmine));
+	this->cards.push_back(new Card(card::Name::crd_powerstation));
 }
 Player::~Player()
 {
@@ -93,14 +101,12 @@ Player::~Player()
 
 void Player::Update(const float & dtime)
 {
-	
-	name.setString("Player " + to_string(id) + "\n\n" + "Money: " + to_string(money));
 	if (money <= 0 && prop.size() == 0)
 	{
 		life = false;
 	}
 
-	if(Player::lot!=nullptr && money>Player::lot->price)
+	if(Player::lot!=nullptr && money>Player::lot->data.price)
 	for (size_t i = 0; i < aucbutt.size(); i++)
 	{
 		aucbutt[1]->TextSetString(to_string(bets[id]));
@@ -108,11 +114,15 @@ void Player::Update(const float & dtime)
 		CheckButton(*aucbutt[i]);
 	}
 }
+void Player::UpdateText()
+{
+	name.setString("Player " + to_string(id) + "\n\n" + "Money: " + to_string(money));
+}
 void Player::Draw(RenderTarget & target)
 {
 	target.draw(name);
 	target.draw(sprite);
-	if (Player::lot != nullptr && money>Player::lot->price)
+	if (Player::lot != nullptr && money>Player::lot->data.price)
 	for (size_t i = 0; i < aucbutt.size(); i++)
 	{
 		aucbutt[i]->Draw(target);
@@ -141,21 +151,21 @@ void Player::CheckButton(Button & button)
 		{
 		case form::id::plus:
 			button.SetInstance(form::Instance::hover);
-			if(bets[id] + lot->price / 10 < money)
-				bets[id] += lot->price / 10;
+			if(bets[id] + lot->data.price / 10 < money)
+				bets[id] += lot->data.price / 10;
 			aucbutt[1]->TextSetString(to_string(bets[id]));
 			break;
 		case form::id::minus:
 			button.SetInstance(form::Instance::hover);
-			if(bets[id] - lot->price / 10 >= lot->price)
-				bets[id] -= lot->price / 10;
+			if(bets[id] - lot->data.price / 10 >= lot->data.price)
+				bets[id] -= lot->data.price / 10;
 			aucbutt[1]->TextSetString(to_string(bets[id]));
 			break;
 		case form::id::buy_card:
 			if (money > bets[id])
 			{
 				button.SetInstance(form::Instance::hover);
-				SetMoney(-(bets[this->id] - lot->price));
+				SetMoney(-(bets[this->id] - lot->data.price));
 				BuyProperty(Player::lot);
 				Player::lot = nullptr;
 			}
@@ -189,6 +199,7 @@ void Player::EraseProperty(int id)
 		if (prop[i]->GetID() == id)
 		{
 			prop.erase(prop.begin() + i);
+			break;
 		}
 	}
 }
@@ -209,114 +220,75 @@ void Player::SetMoney(int amount)
 		bankrupt = true;
 	else
 		bankrupt = false;
+
+	UpdateText();
 }
+
 void Player::SellProperty(Card * card)
 {
-	for (size_t i = 0; i < prop.size(); i++)
+	auto find_n = [&]() 
 	{
-		if (prop[i]->id == card->id)
+		for (size_t i = 0; i < prop.size(); i++)
 		{
-			if (prop[i]->level > 1)
+			if (prop[i]->GetID() == card->GetID())
+				return i;
+		}
+	};
+	
+	if (card->data.level > 1)
+	{
+		SetMoney(card->data.base_price / 3);
+		card->data.incLevel(-1);
+		card->UpdateText();
+	}
+	else
+	{
+		SetMoney(card->data.base_price / 2);
+		card->data.resetData();
+		card->SetOwner(card::Owner::neutral);
+		property[card->type]--;
+		EraseProperty(card->GetID());
+
+		for (size_t i = 0; i < prop.size(); i++)
+		{
+			if (prop[i]->type == card->type)
 			{
-				
-				prop[i]->level--;
-				prop[i]->price -= prop[i]->baseprice;
-				prop[i]->profit -= prop[i]->baseprofit;
-				SetMoney(prop[i]->baseprice / 2);
-			}
-			else
-			{
-				prop[i]->SetOwner(card::Owner::neutral);
-				SetMoney(prop[i]->baseprice / 2);
-				property[prop[i]->type]--;
-
-				if (property[card->type] == 2)
-				{
-					for (size_t c = 0; c < prop.size(); c++)
-					{
-						if (prop[c]->type == card->type)
-						{
-							prop[c]->baseprofit /= 2;
-							prop[c]->profit = prop[c]->baseprofit * prop[c]->level;
-							prop[c]->monopoly3 = false;
-							prop[c]->UpdateText();
-						}
-					}
-				}
-				else if (property[card->type] == 3)
-				{
-					for (size_t c = 0; c < prop.size(); c++)
-					{
-						if (prop[c]->type == card->type)
-						{
-								prop[c]->baseprofit = (prop[c]->baseprofit / 3) * 2;
-								prop[c]->profit = prop[c]->baseprofit * prop[c]->level;
-								prop[c]->monopoly4 = false;
-								prop[c]->monopoly3 = true;
-								prop[c]->UpdateText();
-
-						if (prop[c]->id == card->id)
-							{
-							prop[c]->baseprofit /= 2;
-							prop[c]->profit = prop[c]->baseprofit * prop[c]->level;
-							prop[c]->monopoly3 = false;
-							prop[c]->UpdateText();
-							}
-						}
-					}
-				}
-
-				prop.erase(prop.begin() + i);
+				prop[i]->data.setPolyLevel(property[card->type]);
+				prop[i]->UpdateText();
 			}
 		}
+		
+	}
+}
+void Player::UpProperty(Card * card)
+{
+	int uprice = card->data.base_price / 2;
+	if (money > uprice && card->data.level<3)
+	{
+		SetMoney(-uprice);
+		card->data.incLevel(1);
+		card->UpdateText();
+	}
+}
+void Player::BuyProperty(Card * card)
+{
+	SetMoney(-card->data.price);
+	card->SetOwner(id);
+	prop.push_back(card);
+	property[card->type]++;
+	for (size_t i = 0; i < prop.size(); i++)
+	{
+		if (prop[i]->type == card->type)
+			prop[i]->SetPolyLevel(property[card->type]);
 	}
 	
-	
 }
+
 void Player::StartAuction(Card * card)
 {
 	for (size_t i = 0; i < 5; i++)
 	{
-		bets[i] = card->price;
+		bets[i] = card->data.price;
 	}
 	Player::lot = card;
-}
-void Player::BuyProperty(Card * card)
-{
-	SetMoney(-card->price);
-	card->SetOwner(id);
-	prop.push_back(card);
-	property[card->type]++;
-
-	if (property[card->type] == 3)
-	{
-		for (size_t i = 0; i < prop.size(); i++)
-		{
-			if (prop[i]->type == card->type)
-			{
-				prop[i]->baseprofit *= 2;
-				prop[i]->profit = prop[i]->baseprofit * prop[i]->level;
-				prop[i]->monopoly3 = true;
-				prop[i]->UpdateText();
-			}
-		}
-	}
-	else if (property[card->type] == 4)
-	{
-		prop[prop.size() - 1]->baseprofit *= 2;
-		prop[prop.size() - 1]->profit = prop[prop.size() - 1]->baseprofit * prop[prop.size() - 1]->level;
-		prop[prop.size() - 1]->monopoly3 = true;
-		prop[prop.size() - 1]->UpdateText();
-
-		for (size_t i = 0; i < prop.size(); i++)
-		{
-			if (prop[i]->type == card->type)
-			{
-				prop[i]->baseprofit = (prop[i]->baseprofit / 2) * 3;
-				prop[i]->profit = prop[i]->baseprofit * prop[i]->level;
-				prop[i]->monopoly4 = true;
-				prop[i]->UpdateText();
-			}
-		}
-	}
 }

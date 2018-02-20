@@ -1,6 +1,7 @@
 #include "Auction.h"
 #pragma once
 
+
 namespace stg
 {
 	enum Type
@@ -73,30 +74,37 @@ private:
 
 	bool animation		= false;
 	bool selector		= false;
+	bool showcards		= false;
+
 	int currplayer		= 0;
 	int cubes			= 0;
+
+	int viewer			= 1;
+
 	float animtime		= 0;
 	float animtimeMax	= 0.1;
 
 	stg::AIstage aistage = stg::AIstage::start_turn;
+
 public:
 	STGameLoop();
 	~STGameLoop();
+
 	//Functions
 	void Update(const float &dtime)override;
 	void Draw(RenderTarget &target)override;
 	void CheckButton(Button&button)override;
 	void CatchEvent(const Event &event)override;
-	
-	void AICheck(Player &player);
+	void PlaceCard();
+	void ClearCrd();
 
 	void ThrowCubes();
 	void Animation(const float &dtime);
 	void CheckCard();
 	void EndTurn();
 	void Selector();
-	//Static
 
+	//Static
 	static int playersN;
 	static int startMoney;
 	static bool gameStarted;

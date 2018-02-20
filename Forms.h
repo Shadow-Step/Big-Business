@@ -91,7 +91,7 @@ private:
 	Text text;
 public:
 	ToolTip(string str);
-	ToolTip(string str,Texture &texture);
+	ToolTip(string str,Texture &texture, Vector2f position = Vector2f(600,150));
 	//Functions
 	void Update(const float &time);
 	inline void Draw(RenderTarget & target) { target.draw(tooltip); target.draw(text); }
