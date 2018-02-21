@@ -46,7 +46,7 @@ public:
 	int curr;
 	int back;
 	//Functions
-	void setPos(int pos)
+	void setPos(size_t pos)
 	{
 		if (pos >= vector_size || pos < 0)
 			throw("Out of range. Template Pos -> setPos(T pos)");

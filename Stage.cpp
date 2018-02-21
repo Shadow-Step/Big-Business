@@ -498,9 +498,12 @@ void STGameLoop::CheckButton(Button & button)
 		switch (button.GetID())
 		{
 		case form::id::end_turn:
+		{
 			EndTurn();
 			break;
+		}
 		case form::id::throw_cubes:
+		{
 			ThrowCubes();
 
 			////temp!!!
@@ -509,7 +512,9 @@ void STGameLoop::CheckButton(Button & button)
 			//fooptr = &STGameLoop::ThrowCubes;
 			////end temp!!!
 			break;
+		}
 		case form::id::buy_card: // Must be deleted!
+		{
 			if (plr->money > crd->data.price)
 			{
 				plr->BuyProperty(crd);
@@ -522,17 +527,22 @@ void STGameLoop::CheckButton(Button & button)
 				button.SetInstance(form::Instance::active);
 			}
 			break;
+		}
 		case form::id::sell_card:
+		{
 			plr->SellProperty(crd);
 			crd->UpdateText();
 			break;
+		}
 		case form::id::upgrade_card:
+		{
 			button.SetInstance(form::Instance::hover);
-			if (plr->money > crd->data.base_price/2 && crd->data.level < 3)
+			if (plr->money > crd->data.base_price / 2 && crd->data.level < 3)
 			{
 				plr->UpProperty(crd);
 			}
 			break;
+		}
 		}
 	}
 }
@@ -708,6 +718,7 @@ void STGameLoop::PlaceCard()
 		switch (crd->special)
 		{
 		case card::Special::money_aura:
+		{
 			if (on(n.front) == own::mein)
 			{
 				card[n.front]->data.boostProfit(0.50);
@@ -721,7 +732,9 @@ void STGameLoop::PlaceCard()
 				card[n.back]->card.setFillColor(Color::Cyan);
 			}
 			break;
+		}
 		case card::Special::money_curse:
+		{
 			if (on(n.front) == own::enem)
 			{
 				card[n.front]->data.boostProfit(-0.50);
@@ -735,7 +748,9 @@ void STGameLoop::PlaceCard()
 				card[n.back]->card.setFillColor(Color::Black);
 			}
 			break;
+		}
 		case card::Special::clone:
+		{
 			if (on(n.back) == own::neut)
 			{
 				*card[n.back] = *crd;
@@ -746,8 +761,11 @@ void STGameLoop::PlaceCard()
 				card[n.back]->UpdateText();
 			}
 			break;
+		}
 		default:
+		{
 			break;
+		}
 		}
 	}
 }

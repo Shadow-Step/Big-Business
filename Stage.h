@@ -68,7 +68,6 @@ private:
 
 	Player *plr					= nullptr;
 	Card   *crd					= nullptr;
-	Card   *sel					= nullptr;
 	WarningBox *warning			= nullptr;
 	void(STGameLoop::*fooptr)() = nullptr;
 
@@ -76,11 +75,9 @@ private:
 	bool selector		= false;
 	bool showcards		= false;
 
-	int currplayer		= 0;
+	size_t currplayer	= 0;
 	int cubes			= 0;
-
 	int viewer			= 1;
-
 	float animtime		= 0;
 	float animtimeMax	= 0.1;
 

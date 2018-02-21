@@ -389,7 +389,7 @@ void Card::InitRands()
 }
 void Card::Select(bool choise)
 {
-	if (choise = true)
+	if (choise == true)
 	{
 		card.setOutlineThickness(3);
 		tooldraw = true;
